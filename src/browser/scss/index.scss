@@ -1,0 +1,25 @@
+@import 'globals/index';
+@import 'typography';
+
+html, body, #app, .app {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: #24252a;
+  color: #edf0f1;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+}
+
+a, li, ul, p, button, address, abbr, button, article {
+  display: block;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  text-decoration: none;
+}
