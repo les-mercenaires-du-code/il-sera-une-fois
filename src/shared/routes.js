@@ -1,25 +1,21 @@
 import _ from 'lodash';
-import { Redirect } from 'react-router';
 import Promise from 'bluebird';
+import { Redirect } from 'react-router';
+import loadable from '@loadable/component';
 
-import App from './App';
-import Home from './components/Home';
-import Child from './components/Child';
-import GrandChild from './components/GrandChild';
-
-import NotFound from './utils/NotFound';
 import DataProvider from './utils/DataProvider';
-import Errors from './utils/Errors';
 import ErrorBoundary from './utils/ErrorBoundary';
 
 const routes = [
   {
-    component: App,
+    // async => component: loadable(props => import('./ComponentName')),
+    // sync => component: Component,
+    component: loadable(props => import('./App')),
     routes: [
       {
         path: '/',
         exact: true,
-        component: Home,
+        component: loadable(props => import('./components/Home')),
         loadData: (match) => {
 
           return new Promise((resolve) => {
@@ -33,7 +29,7 @@ const routes = [
       },
       {
         path: "/child/:id",
-        component: Child,
+        component: loadable(props => import('./components/Child')),
         loadData: () => {
 
           return new Promise((resolve) => {
@@ -47,7 +43,7 @@ const routes = [
         routes: [
           {
             path: "/child/:id/grand-child",
-            component: GrandChild,
+            component: loadable(props => import('./components/GrandChild')),
             loadData: () => {
 
               return new Promise((resolve) => {
@@ -71,12 +67,12 @@ const routes = [
       },
       {
         path: '/error',
-        component: Errors,
+        component: loadable(props => import('./utils/Errors')),
         exact: true,
       },
       {
         path: '*',
-        component: NotFound,
+        component: loadable(props => import('./utils/NotFound')),
         exact: true,
       },
     ],
@@ -88,7 +84,7 @@ const routes = [
 // wrap a route that need data fetching with DataProvider component
 function getWrapper(route) {
 
-  const Component = route.component;
+  let Component = route.component;
 
   if (!route.loadData) {
     const fn = (props) => (
