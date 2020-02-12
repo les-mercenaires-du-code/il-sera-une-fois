@@ -46,7 +46,7 @@ export default function ssr(options = defaultOptions) {
     }
 
     const html = cached[req.url];
-    if (html) {
+    if (options.cache && html) {
       res.send(html);
       return;
     }
@@ -76,13 +76,13 @@ export default function ssr(options = defaultOptions) {
         const html = getHtml(staticContext, markup, scriptTags);
 
         if (options.cache) {
-          console.log('CACHING REQUIRED');
           cached[req.url] = html;
         }
 
         res.send(html);
       })
       .catch((err) => {
+
         return res.redirect('/error');
       })
     ;

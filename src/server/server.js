@@ -29,11 +29,11 @@ async function createServer() {
 
     app
       .use(express.static('build/public')) // serve static files
-      .use( // render and respond client app for requested route
+      .use( // render and respond html for requested route
         ssr({
           hot: false, // disable hot reload in production
-          statsFile: './build/stats.json',
-          cache: true,
+          statsFile: './build/stats.json', // handle chunks
+          cache: true, // store rendered html
         })
       )
     ;
@@ -58,8 +58,8 @@ async function createServer() {
     .use(webpackHotMiddleware(compiler)) // hot reload shared components on change
     .use( // render and respond client app for requested route
       ssr({
-        compiler,
-        hot: true,
+        compiler, // catch bundle update
+        hot: true, // sends updates to client via WS
         statsFile: './src/stats.json',
       })
     )

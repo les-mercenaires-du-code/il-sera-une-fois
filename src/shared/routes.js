@@ -86,38 +86,37 @@ const routes = [
 
 
 // wrap a route that need data fetching with DataProvider component
-function getDataWrapper(route) {
+function getWrapper(route) {
+
   const Component = route.component;
 
-  // fetched data will be made available in Component.props.state
-  const fn = (props) => {
-    return (
-      <DataProvider {...props}>
-        <Component/>
-      </ DataProvider>
-    );
-  }
-  Object.defineProperty(fn, "name", {
-    value: `${Component.name}DataWrapped`,
-  });
-
-  return fn;
-}
-
-// wrap all routes with ErrorBoundary just to be safe
-function getErrorWrapper(route) {
-  const Component = route.component;
-
-  // fetched data will be made available in Component.props.state
-  const fn = (props) => {
-    return (
-      <ErrorBoundary>
+  if (!route.loadData) {
+    const fn = (props) => (
+      <ErrorBoundary {...props}>
         <Component {...props} />
-      </ ErrorBoundary>
+      </ErrorBoundary>
+    );
+
+    Object.defineProperty(fn, "name", {
+      value: 'RouteWrapper',
+    });
+
+    return fn;
+  }
+
+  // fetched data will be made available in Component.props.state
+  const fn = (props) => {
+    return (
+      <ErrorBoundary {...props}>
+        <DataProvider {...props}>
+          <Component/>
+        </DataProvider>
+      </ErrorBoundary>
     );
   }
+
   Object.defineProperty(fn, "name", {
-    value: `${Component.name}ErrorWrapped`,
+    value: 'RouteWrapper',
   });
 
   return fn;
@@ -128,11 +127,7 @@ function wrapRoutes(routes) {
 
   _.each(routes, (route) => {
 
-    if (route.loadData) {
-      route.component = getDataWrapper(route);
-    }
-
-    route.component = getErrorWrapper(route);
+    route.component = getWrapper(route);
     if (route.routes) {
       wrapRoutes(route.routes);
     }

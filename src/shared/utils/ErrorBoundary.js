@@ -7,7 +7,6 @@ import { Redirect } from 'react-router';
 // - Le code asynchrone (par exemple les fonctions de rappel de setTimeout ou requestAnimationFrame).=> data fetching error will set props.error
 // - Le rendu côté serveur. => ssr middleware will redirect to error page
 // - Les erreurs levées dans le composant du périmètre d’erreur lui-même (plutôt qu’au sein de ses enfants).
-
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -16,23 +15,29 @@ class ErrorBoundary extends React.Component {
 
   static getDerivedStateFromError(error) {
     // console.log('[getDerivedStateFromError]', error);
-    // Mettez à jour l'état, de façon à montrer l'UI de repli au prochain rendu.
+    // Prevent mounting children
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
 
-    // Vous pouvez aussi enregistrer l'erreur au sein d'un service de rapport.
-    // console.log('componentDidCatch', error, errorInfo);
+    // console.log('componentDidCatch', errorInfo);
     // logErrorToMyService(error, errorInfo);
   }
 
-  render(props) {
+  render() {
 
     if (this.state.hasError) {
-      // Vous pouvez afficher n'importe quelle UI de repli.
+      // Redirect to generic error page (also used by server redirect)
+      // this error is NOT related to an async call or event error
       return (
-        <Redirect to="/error" />
+        <Redirect to={{
+            pathname: '/error',
+            state: {
+              from: this.props.location.pathname,
+            },
+          }}
+        />
       );
     }
 

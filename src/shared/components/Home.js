@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { css } from '@emotion/core';
 
-import Loader from './Loader';
+import Loader from '../utils//Loader';
 
 
 const styles = {
@@ -13,7 +13,7 @@ const styles = {
   `,
 };
 
-export default (props) => {
+const Home = (props) => {
 
   if (props.error) {
     //  handle error here or redirect to general error page
@@ -34,3 +34,5 @@ export default (props) => {
     </main>
   );
 };
+
+export default Home;

@@ -23,9 +23,7 @@ loadableReady((props) => {
     module.hot.accept('../shared/routes', () => {
       hydrate(
         <BrowserRouter>
-          <Switch>
-            {renderRoutes(routes)}
-          </Switch>
+          {renderRoutes(routes)}
         </BrowserRouter>,
         document.getElementById('app')
       );
