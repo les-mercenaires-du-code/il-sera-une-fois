@@ -17,6 +17,7 @@ export default function getInitialData(routes, url, path) {
 
     return fetchData(match)
       .then((data) => {
+
         return {
           url: match.url,
           data,

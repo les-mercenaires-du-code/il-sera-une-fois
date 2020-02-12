@@ -20,16 +20,14 @@ const routes = [
         path: '/',
         exact: true,
         component: Home,
-        loadData: () => {
-
-          throw new Error('please help us all')
+        loadData: (match) => {
 
           return new Promise((resolve) => {
             setTimeout(() => {
               resolve({
                 test: 'test load data for App',
               })
-            }, 400)
+            }, 700)
           });
         }
       },

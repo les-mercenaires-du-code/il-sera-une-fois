@@ -33,7 +33,7 @@ const DataProvider = (props) => {
 
   let cancelled = false;
   useEffect(() => {
-    fetchData()
+    fetchData(props.match)
       .catch((err) => {
 
         if (cancelled) {
