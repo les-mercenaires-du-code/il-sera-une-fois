@@ -17,7 +17,6 @@ export default function getHtml(context, markup, scriptTags) {
         <link rel="manifest" href="/site.webmanifest">
         <meta name="msapplication-TileColor" content="#da532c">
 
-        <script>window.__DYNAMIC_ROUTES__ = ${serialize(context.dynamicRoutes)}</script>
         <script>window.__STATIC_DATA__ = ${serialize(context.staticData)}</script>
       </head>
 

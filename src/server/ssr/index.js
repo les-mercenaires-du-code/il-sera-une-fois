@@ -5,6 +5,7 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter, matchPath } from 'react-router-dom';
 import { ChunkExtractor } from '@loadable/server';
 import { renderRoutes } from "react-router-config";
+const util = require('util')
 
 import getHtml from './html.js';
 import getInitialData from './data.js';
@@ -26,6 +27,11 @@ export default function ssr(options = defaultOptions) {
     hot(options.compiler);
   }
 
+  // if options.cache is true the generated html page for this url will be cached here and returned directly on next call
+  // this should NOT be used to replace an api cache
+  // - On Browser, user will still have to wait when navigating to a route that requires data fetching
+  const cached = {};
+
   return async(req, res, next) => {
 
     const routes = process.env.NODE_ENV === 'production' ?
@@ -39,22 +45,27 @@ export default function ssr(options = defaultOptions) {
       return;
     }
 
+    const html = cached[req.url];
+    if (html) {
+      res.send(html);
+      return;
+    }
+
     console.log('serving request', req.url);
     return getInitialData(routes, req.url, req.path)
       .then(async(staticData) => {
 
-        console.log('-----------> staticData', staticData);
-
-        const context = {
+        const staticContext = {
           staticData,
         };
 
         const statsFile = path.resolve(options.statsFile);
         const extractor = new ChunkExtractor({ statsFile });
 
+        // setting context implies we'll get props.staticContext in our components
         const markup = renderToString(
           extractor.collectChunks(
-            <StaticRouter location={req.url} context={context}>
+            <StaticRouter location={req.url} context={staticContext}>
               {renderRoutes(routes)}
             </StaticRouter>,
           ),
@@ -62,7 +73,12 @@ export default function ssr(options = defaultOptions) {
 
 
         const scriptTags = extractor.getScriptTags(); // or extractor.getScriptElements();
-        const html = getHtml(context, markup, scriptTags);
+        const html = getHtml(staticContext, markup, scriptTags);
+
+        if (options.cache) {
+          console.log('CACHING REQUIRED');
+          cached[req.url] = html;
+        }
 
         res.send(html);
       })

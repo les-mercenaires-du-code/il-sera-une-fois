@@ -7,13 +7,12 @@ import { renderRoutes } from "react-router-config";
 import routes from '../shared/routes';
 import './scss/index.scss';
 
-loadableReady(() => {
+
+loadableReady((props) => {
 
   hydrate(
     <BrowserRouter>
-      <Switch>
-        {renderRoutes(routes)}
-      </Switch>
+      {renderRoutes(routes)}
     </BrowserRouter>,
     document.getElementById('app')
   );

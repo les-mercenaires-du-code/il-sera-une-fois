@@ -10,6 +10,7 @@
     },
     globals: {
       __isBrowser__: true,
+      window: true,
     },
     "parser": "babel-eslint",
     "plugins": ["react"],

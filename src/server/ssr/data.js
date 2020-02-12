@@ -10,17 +10,25 @@ export default function getInitialData(routes, url, path) {
 
   const promises = branch.map(({ route, match }) => {
 
-    return route.loadData ?
-      Promise.method(route.loadData(match)) :
-      Promise.resolve(null)
+    const fetchData = route.loadData ?
+      Promise.method(route.loadData) :
+      () => Promise.resolve(null)
     ;
+
+    return fetchData(match)
+      .then((data) => {
+        return {
+          url: match.url,
+          data,
+        }
+      })
   });
 
   return Promise.all(promises)
     .tap((res) => {
-      console.log('getInitialData', res);
+      // console.log('getInitialData', res);
     })
-    .catch((err) => {
+    .tapCatch((err) => {
       console.log('getInitialData', err);
     })
   ;

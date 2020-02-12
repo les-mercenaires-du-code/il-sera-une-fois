@@ -4,12 +4,12 @@ import { renderRoutes } from 'react-router-config';
 import Navbar from './components/Navbar';
 
 // main entry point
-function App({ route }) {
+function App(props) {
 
   return (
     <div>
       <Navbar />
-      { renderRoutes(route.routes) }
+      { renderRoutes(props.route.routes) }
     </div>
   );
 }

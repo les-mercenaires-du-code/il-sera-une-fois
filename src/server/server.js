@@ -33,6 +33,7 @@ async function createServer() {
         ssr({
           hot: false, // disable hot reload in production
           statsFile: './build/stats.json',
+          cache: true,
         })
       )
     ;
