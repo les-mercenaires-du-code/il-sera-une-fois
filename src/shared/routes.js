@@ -6,8 +6,11 @@ import App from './App';
 import Home from './components/Home';
 import Child from './components/Child';
 import GrandChild from './components/GrandChild';
-import NotFound from './components/NotFound';
+
+import NotFound from './utils/NotFound';
 import DataProvider from './utils/DataProvider';
+import Errors from './utils/Errors';
+import ErrorBoundary from './utils/ErrorBoundary';
 
 const routes = [
   {
@@ -18,6 +21,8 @@ const routes = [
         exact: true,
         component: Home,
         loadData: () => {
+
+          throw new Error('please help us all')
 
           return new Promise((resolve) => {
             setTimeout(() => {
@@ -67,6 +72,11 @@ const routes = [
         ]
       },
       {
+        path: '/error',
+        component: Errors,
+        exact: true,
+      },
+      {
         path: '*',
         component: NotFound,
         exact: true,
@@ -78,7 +88,7 @@ const routes = [
 
 
 // wrap a route that need data fetching with DataProvider component
-function getWrapped(route) {
+function getDataWrapper(route) {
   const Component = route.component;
 
   // fetched data will be made available in Component.props.state
@@ -90,7 +100,26 @@ function getWrapped(route) {
     );
   }
   Object.defineProperty(fn, "name", {
-    value: `${Component.name}Wrapped`,
+    value: `${Component.name}DataWrapped`,
+  });
+
+  return fn;
+}
+
+// wrap all routes with ErrorBoundary just to be safe
+function getErrorWrapper(route) {
+  const Component = route.component;
+
+  // fetched data will be made available in Component.props.state
+  const fn = (props) => {
+    return (
+      <ErrorBoundary>
+        <Component {...props} />
+      </ ErrorBoundary>
+    );
+  }
+  Object.defineProperty(fn, "name", {
+    value: `${Component.name}ErrorWrapped`,
   });
 
   return fn;
@@ -102,9 +131,10 @@ function wrapRoutes(routes) {
   _.each(routes, (route) => {
 
     if (route.loadData) {
-      route.component = getWrapped(route);
+      route.component = getDataWrapper(route);
     }
 
+    route.component = getErrorWrapper(route);
     if (route.routes) {
       wrapRoutes(route.routes);
     }

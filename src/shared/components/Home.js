@@ -15,9 +15,22 @@ const styles = {
 
 export default (props) => {
 
+  if (props.error) {
+    //  handle error here or redirect to general error page
+    return <p>Home error: {props.error.message}</p>
+  }
+
+  if (!props.state) {
+    return (
+      <main css={styles.main}>
+        <Loader />
+      </main>
+    );
+  }
+
   return (
     <main css={styles.main}>
-      <Loader />
+      <p>{props.state.test}</p>
     </main>
   );
 };

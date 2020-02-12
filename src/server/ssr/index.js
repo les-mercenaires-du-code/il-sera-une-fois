@@ -82,7 +82,9 @@ export default function ssr(options = defaultOptions) {
 
         res.send(html);
       })
-      .catch(next)
+      .catch((err) => {
+        return res.redirect('/error');
+      })
     ;
   };
 }

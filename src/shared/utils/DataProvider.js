@@ -28,18 +28,29 @@ const DataProvider = (props) => {
   }
 
   const [state, setState] = useState(null);
+  const [error, setError] = useState(null);
   const fetchData = Promise.method(props.route.loadData);
 
   let cancelled = false;
   useEffect(() => {
-    fetchData().then((res) => {
+    fetchData()
+      .catch((err) => {
 
-      // react will throw if we try to update a component that has been destroyed
-      if (cancelled) {
-        return;
-      }
-      setState(res);
-    });
+        if (cancelled) {
+          return;
+        }
+        console.log(err);
+        setError(err);
+      })
+      .then((res) => {
+
+        // react will throw if we try to update a component that has been destroyed
+        if (cancelled) {
+          return;
+        }
+        setState(res);
+      })
+    ;
 
     return () => {
       cancelled = true;
@@ -47,7 +58,7 @@ const DataProvider = (props) => {
   }, [null]); // pass [null] to never fire effect again
   // later on, this might need some more consideration to handle socket updates
 
-  return React.cloneElement(props.children, { state, ...props });
+  return React.cloneElement(props.children, { state, error, ...props });
 }
 
 export default DataProvider;
