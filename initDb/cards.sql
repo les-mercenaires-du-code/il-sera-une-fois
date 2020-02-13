@@ -5,36 +5,6 @@ CREATE TABLE cards (
   interruption boolean
 );
 
-CREATE TABLE endings (
-  id serial,
-  ending text
-);
-
-CREATE TABLE rooms (
-  id serial,
-  name text
-);
-
-CREATE TABLE users (
-  id serial,
-  name text,
-  room integer
-);
-
-INSERT INTO users (name, room) VALUES ('Georges', 0);
-INSERT INTO users (name, room) VALUES ('Lucas', 1);
-
-INSERT INTO rooms (name) VALUES ('STARWARS');
-INSERT INTO rooms (name) VALUES ('CYBERPUNK');
-
-
-INSERT INTO endings (ending) VALUES ('La destruction de l''usine plongea la cité à tout jamais dans le noir');
-INSERT INTO endings (ending) VALUES ('La démocratie fut ainsi restauré pendant un temps');
-INSERT INTO endings (ending) VALUES ('La course à la conquête de l''espace fut lancé');
-INSERT INTO endings (ending) VALUES ('Et alors les deux peuples vécurent en paix');
-INSERT INTO endings (ending) VALUES ('Le temps des humains fut révolu et laissa sa place à celui des cyborgs');
-
-
 INSERT INTO cards (name, type, interruption) VALUES ('Centre commercial', 'Lieu', false);
 INSERT INTO cards (name, type, interruption) VALUES ('Egouts', 'Lieu', false);
 INSERT INTO cards (name, type, interruption) VALUES ('Bar', 'Lieu', false);
