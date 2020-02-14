@@ -1,7 +1,4 @@
-// import GraphQlWrapper from './schema.js';
-//
-// export default [GraphQlWrapper];
-
+// Remove when logger is injected
 const mockLogger = {
   info: console.log,
   warn: console.log,
@@ -50,6 +47,7 @@ export default class GraphQlWrapper {
       name: 'Room',
       fields: () => ({
         id: { type: GraphQLID, },
+        name: { type: GraphQLString, },
         users: {
           type: GraphQLList(UserType),
           resolve: (parentValue, args) => {
@@ -87,11 +85,8 @@ export default class GraphQlWrapper {
           args: { id: { type: GraphQLID }},
           resolve: (parentValue, args) => {
             const query = `SELECT * FROM "users" WHERE id=${args.id}`;
+            this.logger.debug('Query user', parentValue, args, query);
             return this.db.one(query)
-              .then((res) => {
-                console.log(res);
-                return res;
-              })
               .catch((err) => {
                 this.logger.error(err);
                 throw err;
@@ -99,11 +94,26 @@ export default class GraphQlWrapper {
             ;
           },
         },
-        room: {
+        roomById: {
           type: RoomType,
           args: { id: { type: GraphQLID }},
           resolve: (parentValue, args) => {
             const query = `SELECT * FROM "rooms" WHERE id=${args.id}`;
+            this.logger.debug('Query roomById', parentValue, args, query);
+            return this.db.one(query)
+              .catch((err) => {
+                this.logger.error(err);
+                throw err;
+              })
+            ;
+          },
+        },
+        roomByName: {
+          type: RoomType,
+          args: { name: { type: GraphQLString }},
+          resolve: (parentValue, args) => {
+            const query = `SELECT * FROM "rooms" WHERE name='${args.name}'`;
+            this.logger.debug('Query roomByName', parentValue, args, query);
             return this.db.one(query)
               .catch((err) => {
                 this.logger.error(err);
@@ -115,7 +125,8 @@ export default class GraphQlWrapper {
         roomsList: {
           type: GraphQLList(RoomType),
           resolve: (parentValue, args) => {
-            const query = `SELECT * FROM "rooms"`; // maybe "ilseraunefois".rooms
+            const query = `SELECT * FROM "rooms"`;
+            this.logger.debug('Query roomsList', parentValue, args, query);
             return this.db.many(query)
               .catch((err) => {
                 this.logger.error(err);
@@ -127,7 +138,8 @@ export default class GraphQlWrapper {
         cardsList: {
           type: GraphQLList(CardType),
           resolve: (parentValue, args) => {
-            const query = `SELECT * FROM "cards"`; // maybe "ilseraunefois".cards
+            const query = `SELECT * FROM "cards"`;
+            this.logger.debug('Query cardsList', parentValue, args, query);
             return this.db.many(query)
               .catch((err) => {
                 this.logger.error(err);
@@ -139,7 +151,8 @@ export default class GraphQlWrapper {
         endingsList: {
           type: GraphQLList(EndingType),
           resolve: (parentValue, args) => {
-            const query = `SELECT * FROM "endings"`; // maybe "ilseraunefois".endings
+            const query = `SELECT * FROM "endings"`;
+            this.logger.debug('Query endingsList', parentValue, args, query);
             return this.db.many(query)
               .catch((err) => {
                 this.logger.error(err);
@@ -155,5 +168,4 @@ export default class GraphQlWrapper {
       query: RootQuery,
     });
   }
-
 }

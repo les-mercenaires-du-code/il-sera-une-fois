@@ -1,0 +1,72 @@
+query user($myVar: ID) {
+  user(id: $myVar) {
+    id
+    name
+    room
+  }
+}
+
+query roomById($parentId: ID) {
+  roomById(id: $parentId) {
+    id
+    name
+    users {
+      id
+      name
+    }
+  }
+}
+
+query roomByName($parentName: String) {
+  roomByName(name: $parentName) {
+    id
+    name
+    users {
+      id
+      name
+    }
+  }
+}
+
+query rooms {
+  roomsList {
+    id
+    name
+    users {
+      id
+      name
+    }
+  }
+}
+
+query cards {
+  cardsList {
+    id
+    name
+    interruption
+  }
+}
+
+
+query endings {
+  endingsList {
+    id
+    ending
+  }
+}
+
+query namedoesntmatter {
+  endingsList {
+    id
+    ending
+  }
+}
+
+
+########  QUERY VARIABLES ########
+
+{
+  "parentId": 1,
+  "myVar": 2,
+  "parentName": "STARWARS"
+}

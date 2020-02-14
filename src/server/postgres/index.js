@@ -3,6 +3,7 @@ import Promise from 'bluebird';
 import _ from 'lodash';
 import Joi from '@hapi/joi';
 
+// Remove when loggers are ready
 const mockLogger = {
   info: console.log,
   warn: console.log,
