@@ -5,6 +5,7 @@ import loadable from '@loadable/component';
 
 import DataProvider from './utils/DataProvider';
 import ErrorBoundary from './utils/ErrorBoundary';
+import PrivateRoute from './utils/PrivateRoute';
 
 const routes = [
   {
@@ -66,13 +67,24 @@ const routes = [
         ]
       },
       {
+        path: '/dashboard',
+        component: loadable(props => import('./components/Dashboard')),
+        exact: true,
+        private: true,
+      },
+      {
+        path: '/login',
+        component: loadable(props => import('./components/Login')),
+        exact: true,
+      },
+      {
         path: '/error',
-        component: loadable(props => import('./utils/Errors')),
+        component: loadable(props => import('./components/Errors')),
         exact: true,
       },
       {
         path: '*',
-        component: loadable(props => import('./utils/NotFound')),
+        component: loadable(props => import('./components/NotFound')),
         exact: true,
       },
     ],
@@ -82,6 +94,8 @@ const routes = [
 
 
 // wrap a route that need data fetching with DataProvider component
+// wrap private route with PrivateRoute cmp if needed
+// add ErrorBoundary to all routes
 function getWrapper(route) {
 
   let Component = route.component;
@@ -89,7 +103,10 @@ function getWrapper(route) {
   if (!route.loadData) {
     const fn = (props) => (
       <ErrorBoundary {...props}>
-        <Component {...props} />
+        {route.private ?
+          <PrivateRoute {...props}><Component {...props} /></PrivateRoute> :
+          <Component {...props} />
+        }
       </ErrorBoundary>
     );
 
@@ -104,9 +121,16 @@ function getWrapper(route) {
   const fn = (props) => {
     return (
       <ErrorBoundary {...props}>
-        <DataProvider {...props}>
-          <Component/>
-        </DataProvider>
+        {route.private ?
+          <PrivateRoute {...props}>
+            <DataProvider {...props}>
+              <Component/>
+            </DataProvider>
+          </PrivateRoute> :
+          <DataProvider {...props}>
+            <Component/>
+          </DataProvider>
+        }
       </ErrorBoundary>
     );
   }

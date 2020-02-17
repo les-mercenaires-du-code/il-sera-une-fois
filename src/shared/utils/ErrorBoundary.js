@@ -3,10 +3,10 @@ import { Redirect } from 'react-router';
 
 
 //Les périmètres d’erreurs n’interceptent pas les erreurs qui surviennent dans :
-// - Les gestionnaires d’événements (en savoir plus).
-// - Le code asynchrone (par exemple les fonctions de rappel de setTimeout ou requestAnimationFrame).=> data fetching error will set props.error
-// - Le rendu côté serveur. => ssr middleware will redirect to error page
-// - Les erreurs levées dans le composant du périmètre d’erreur lui-même (plutôt qu’au sein de ses enfants).
+// - Les gestionnaires d’événements
+// - Le code asynchrone (par exemple les fonctions de rappel de setTimeout ou requestAnimationFrame) => data fetching error will set props.error
+// - Le rendu côté serveur => ssr middleware will redirect to error page
+// - Les erreurs levées dans le composant du périmètre d’erreur lui-même (plutôt qu’au sein de ses enfants)
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
