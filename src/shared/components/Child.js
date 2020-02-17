@@ -12,6 +12,7 @@ const Child = (props) => {
   return (
     <div>
       <h2>Child</h2>
+      <p>{props.user.name}</p>
       <p>{props.state.test}</p>
       {/* child routes won't render without this */}
       {renderRoutes(props.route.routes, { someProp: "these extra props are optional" })}
