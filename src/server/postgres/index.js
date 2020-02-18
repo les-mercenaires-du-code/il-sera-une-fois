@@ -24,21 +24,15 @@ const connectionSchema = Joi.object().keys({
 export default class Pg {
   constructor(params, logger = mockLogger) {
 
-    // const connectOpts = {
-    //   host: this.params.endpoint,
-    //   port: this.params.port,
-    //   user: this.params.user,
-    //   password: this.params.password,
-    //   database: this.params.schema,
-    //   ssl: true,
-    // };
+    this.params = params;
+
     const connectOpts = {
-      host: 'localhost',
-      port: '5432',
-      user: 'postgres',
-      password: 'password',
-      database: 'ilseraunefois',
-      ssl: true,
+      host: this.params.pgHost,
+      port: this.params.pgPort,
+      user: this.params.pgUser,
+      password: this.params.pgPassword,
+      database: this.params.pgDatabase,
+      ssl: this.params.pgSsl,
     };
 
     this.db = null;
@@ -52,10 +46,6 @@ export default class Pg {
     } catch (e) {
       this.logger.error('[Pg] err: ', e);
       throw new Error('[Pg] invalid parameters');
-    }
-
-    if (process.env.NODE_ENV === 'development') {
-       delete this.connectOpts.ssl;
     }
 
     this.logger.info('[Pg.constructor] Connexion au serveur sqlDB with opts.', _.omit(this.connectOpts, ['password']));
