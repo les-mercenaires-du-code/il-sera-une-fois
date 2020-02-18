@@ -5,13 +5,16 @@ import _ from 'lodash';
 
 import Pg from './postgres';
 import GraphQlWrapper from './graphql';
+import { loadEnv, getConfig } from './config';
 
 (async function() {
   try {
+    loadEnv();
 
-    console.log('Running with NODE_ENV =', process.env.NODE_ENV);
+    const config = getConfig();
+    console.log('Running with NODE_ENV =', config.env);
 
-    const pg = new Pg({});
+    const pg = new Pg(config.pg);
     await pg.start();
 
     const graphQl = new GraphQlWrapper(pg.db);
@@ -21,7 +24,7 @@ import GraphQlWrapper from './graphql';
     const expressApp = await createServer(graphQl);
 
     const server = expressApp
-      .listen(3000, () => {
+      .listen(config.port, () => {
         console.log('Listening at http://localhost:3000/');
       })
     ;
