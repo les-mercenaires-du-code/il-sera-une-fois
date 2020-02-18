@@ -58,6 +58,10 @@ export default class GraphQlWrapper {
                 return data;
               })
               .catch((err) => {
+                if (err.code === 0) { // empty data
+                  return [];
+                }
+
                 this.logger.error(err);
                 throw err;
               })
@@ -129,6 +133,10 @@ export default class GraphQlWrapper {
             this.logger.debug('Query roomsList', parentValue, args, query);
             return this.db.many(query)
               .catch((err) => {
+                if (err.code === 0) { // empty data
+                  return [];
+                }
+
                 this.logger.error(err);
                 throw err;
               })
@@ -164,8 +172,80 @@ export default class GraphQlWrapper {
       },
     });
 
+    const RootMutation = new GraphQLObjectType({
+      name: 'RootMutation',
+      fields: {
+        updateRoomName: {
+          type: RoomType,
+          args: {
+            id: { type: GraphQLID },
+            name: { type: GraphQLString },
+          },
+          resolve: (parentValue, args) => {
+            const query = `
+              UPDATE "rooms"
+              SET name='${args.name}'
+              WHERE id=${args.id}
+              RETURNING *
+            `;
+            this.logger.debug('Mutation updateRoomName', args, query);
+            return this.db.one(query)
+              .catch((err) => {
+                this.logger.error(err);
+                throw err;
+              })
+            ;
+          },
+        },
+        joinRoom: {
+          type: UserType,
+          args: {
+            roomId: { type: GraphQLID },
+            userId: { type: GraphQLID },
+          },
+          resolve: (parentValue, args) => {
+            const query = `
+              UPDATE "users"
+              SET room='${args.roomId}'
+              WHERE id=${args.userId}
+              RETURNING *
+            `;
+            this.logger.debug('Mutation joinRoom', args, query);
+            return this.db.one(query)
+              .catch((err) => {
+                this.logger.error(err);
+                throw err;
+              })
+            ;
+          }
+        },
+        leaveRoom: {
+          type: UserType,
+          args: {
+            userId: { type: GraphQLID },
+          },
+          resolve: (parentValue, args) => {
+            const query = `
+              UPDATE "users"
+              SET room=null
+              WHERE id=${args.userId}
+              RETURNING *
+            `;
+            this.logger.debug('Mutation leaveRoom', args, query);
+            return this.db.one(query)
+              .catch((err) => {
+                this.logger.error(err);
+                throw err;
+              })
+            ;
+          },
+        },
+      },
+    });
+
     this.schema = new GraphQLSchema({
       query: RootQuery,
+      mutation: RootMutation,
     });
   }
 }

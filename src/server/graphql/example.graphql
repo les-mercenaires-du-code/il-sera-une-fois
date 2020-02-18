@@ -62,11 +62,33 @@ query namedoesntmatter {
   }
 }
 
+mutation updateRoomName($roomId: ID, $roomName: String){
+  updateRoomName(id: $roomId, name: $roomName) {
+    id,
+    name,
+  }
+}
+
+mutation joinRoom($userId: ID, $roomId: ID){
+  joinRoom(userId: $userId, roomId: $roomId) {
+    id,
+    name,
+  }
+}
+
+mutation leaveRoom($userId: ID){
+  leaveRoom(userId: $userId) {
+    id,
+    name,
+  }
+}
 
 ########  QUERY VARIABLES ########
 
 {
   "parentId": 1,
   "myVar": 2,
-  "parentName": "STARWARS"
+  "roomId": 1,
+  "userId": 2,
+  "roomName": "TOMMYCAUPDATE"
 }
