@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import loggers from './loggers';
+import secrets from './secrets';
 
 export function loadEnv(options = {}) {
   let envPath = _.get(options, 'envPath', '../../../.env');
@@ -29,25 +31,33 @@ export function loadEnv(options = {}) {
   }
 }
 
+export config = {
+  appName: 'stack',
+  env: getEnvVar('NODE_ENV'),
+  port: asNumber(getEnvVar('SERVER_PORT')),
+  protocol: getEnvVar('PROTOCOL') || 'http',
+  ip: getEnvVar('HOST') || 'localhost',
+  LOG_DIR: getEnvVar('LOG_DIR') || 'logs',
+  pg: {
+    pgHost: getEnvVar('PG_HOST'),
+    pgPort: getEnvVar('PG_PORT'),
+    pgUser: getEnvVar('PG_USER'),
+    pgPassword: getEnvVar('PG_PASSWORD'),
+    pgDatabase: getEnvVar('PG_DATABASE'),
+    pgSsl: isTrue(getEnvVar('PG_SSL')),
+  },
+  redis: {
+    host: getEnvVar('REDIS_HOST'),
+    port: getEnvVar('REDIS_PORT'),
+    password: getEnvVar('REDIS_PASSWORD'),
+    tls: getEnvVar('NODE_ENV') === 'production',
+  },
+  secrets,
+  loggers,
+};
+
 export function getConfig() {
-  return {
-    env: getEnvVar('NODE_ENV'),
-    port: asNumber(getEnvVar('SERVER_PORT')),
-    pg: {
-      pgHost: getEnvVar('PG_HOST'),
-      pgPort: getEnvVar('PG_PORT'),
-      pgUser: getEnvVar('PG_USER'),
-      pgPassword: getEnvVar('PG_PASSWORD'),
-      pgDatabase: getEnvVar('PG_DATABASE'),
-      pgSsl: isTrue(getEnvVar('PG_SSL')),
-    },
-    redis: {
-      host: getEnvVar('REDIS_HOST'),
-      port: getEnvVar('REDIS_PORT'),
-      password: getEnvVar('REDIS_PASSWORD'),
-      tls: getEnvVar('NODE_ENV') === 'production',
-    },
-  };
+  return config;
 }
 
 function getEnvVar(name) {

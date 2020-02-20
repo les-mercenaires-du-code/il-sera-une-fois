@@ -50,6 +50,20 @@ const routes = [
         },
       },
       {
+        path: "/lobby",
+        component: loadable(props => import('./components/Lobby')),
+        loadData: () => {
+
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve({
+                test: 'test load data for Looby',
+              })
+            }, 400)
+          });
+        },
+      },
+      {
         path: "/child/:id",
         component: loadable(props => import('./components/Child')),
         loadData: () => {
