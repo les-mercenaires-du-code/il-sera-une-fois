@@ -4,7 +4,9 @@ import Promise from 'bluebird';
 import _ from 'lodash';
 
 import Pg from './postgres';
-import GraphQlWrapper from './graphql';
+import GraphQLCustomSchema from './graphql';
+import Redis from './redis';
+
 import { loadEnv, getConfig } from './config';
 
 (async function() {
@@ -17,8 +19,13 @@ import { loadEnv, getConfig } from './config';
     const pg = new Pg(config.pg);
     await pg.start();
 
-    const graphQl = new GraphQlWrapper(pg.db);
-    graphQl.init();
+    const redis = new Redis(config.redis);
+    await redis.start();
+    await redis.fulfillRedis();
+
+    const graphQl = new GraphQLCustomSchema();
+    graphQl.registerDb(pg, 'pg');
+    graphQl.registerDb(redis, 'redis');
 
     const createServer = require('./server.js').default;
     const expressApp = await createServer(graphQl);

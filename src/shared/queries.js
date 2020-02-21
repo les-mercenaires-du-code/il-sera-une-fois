@@ -24,7 +24,25 @@ export const getRooms = _.template(
         users {
           id
           name
+          room
+          hand {
+            id
+            name
+          }
         }
+      }
+    }
+  `
+);
+
+export const pickCard = _.template(
+  `
+    query pickCard($roomId: ID, $userId: ID ) {
+      pickCard(roomId: $roomId, userId: $userId) {
+        id
+        name
+        type
+        interruption
       }
     }
   `

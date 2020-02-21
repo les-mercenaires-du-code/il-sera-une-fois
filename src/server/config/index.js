@@ -33,13 +33,19 @@ export function getConfig() {
   return {
     env: getEnvVar('NODE_ENV'),
     port: asNumber(getEnvVar('SERVER_PORT')),
-    pg : {
+    pg: {
       pgHost: getEnvVar('PG_HOST'),
       pgPort: getEnvVar('PG_PORT'),
       pgUser: getEnvVar('PG_USER'),
       pgPassword: getEnvVar('PG_PASSWORD'),
       pgDatabase: getEnvVar('PG_DATABASE'),
       pgSsl: isTrue(getEnvVar('PG_SSL')),
+    },
+    redis: {
+      host: getEnvVar('REDIS_HOST'),
+      port: getEnvVar('REDIS_PORT'),
+      password: getEnvVar('REDIS_PASSWORD'),
+      tls: getEnvVar('NODE_ENV') === 'production',
     },
   };
 }

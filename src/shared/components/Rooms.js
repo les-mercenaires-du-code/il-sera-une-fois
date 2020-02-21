@@ -2,7 +2,7 @@ import { Route, Switch } from 'react-router-dom';
 import { renderRoutes } from "react-router-config";
 import _ from 'lodash';
 
-import Room from './Room';
+import RoomInfo from './RoomInfo';
 
 const Rooms = (props) => {
 
@@ -14,7 +14,7 @@ const Rooms = (props) => {
 
   const listRooms = _.map(props.state.roomsList, room =>
     <li key={room.id}>
-      <Room {...props} state={room}/>
+      <RoomInfo {...props} state={room}/>
     </li>
   );
 

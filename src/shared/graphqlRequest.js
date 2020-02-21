@@ -37,3 +37,22 @@ export function getRooms() {
     })
   ;
 }
+
+export function pickCard(roomId, userId) {
+  console.log('launching request pickCard');
+  const query = queries.pickCard();
+
+  const variables = { roomId, userId };
+
+  console.log(query, variables);
+
+  return client.request(query, variables)
+    .then((data) => {
+      console.log('pickCard request success', data);
+      return data;
+    })
+    .catch((err) => {
+      console.log('pickCard request failed', err);
+    })
+  ;
+}

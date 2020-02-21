@@ -53,13 +53,7 @@ const routes = [
         component: loadable(props => import('./components/Child')),
         loadData: () => {
 
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve({
-                test: 'test load data for Child',
-              })
-            }, 400)
-          });
+          return graphqlRequest.pickCard(1, 2);
         },
         routes: [
           {
