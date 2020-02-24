@@ -1,0 +1,84 @@
+///////////////////////
+
+$font-family: 'Raleway', sans-serif;
+$font-size: 16px;
+
+/* raleway-regular - latin */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/raleway-v12-latin-regular.eot'); /* IE9 Compat Modes */
+  src: local('Raleway'), local('Raleway-Regular'),
+       url('/fonts/raleway-v12-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('/fonts/raleway-v12-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('/fonts/raleway-v12-latin-regular.woff') format('woff'), /* Modern Browsers */
+       url('/fonts/raleway-v12-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('/fonts/raleway-v12-latin-regular.svg#Raleway') format('svg'); /* Legacy iOS */
+}
+
+$baseline: 1.5rem;
+
+$h1: 3.375rem;
+$h2: 2.25rem;
+$h3: 1.5rem;
+$h4: 1rem;
+$h5: 0.667rem;
+$h6: 0.444rem;
+
+body {
+  font-family: $font-family;
+  font-size: $font-size;
+  background: #fefefe;
+  font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	line-height: $baseline;
+}
+
+p {
+	line-height: 1.5em;
+	margin-bottom: $baseline;
+}
+
+h1, h2, h3, h4, h5 {
+	font-weight: 300;
+	margin-bottom: $baseline;
+}
+
+h1 {
+	font-size: $h1;
+	line-height: $h1;
+	margin-top: calc((#{$baseline} - #{$h1}) + #{$baseline});
+}
+
+h2 {
+	font-size: $h2;
+	line-height: $h2;
+	margin-top: calc((#{$baseline} - #{$h2}) + #{$baseline});
+}
+
+h3 {
+	font-size: $h3;
+	line-height: $h3;
+	margin-top: calc((#{$baseline} - #{$h3}) + #{$baseline});
+	margin-bottom: 2em;
+}
+
+h4 {
+	font-size: $h4;
+	line-height: $h4;
+	margin-top: calc((#{$baseline} - #{$h4}) + #{$baseline});
+}
+
+h5 {
+	font-size: $h5;
+	line-height: $h5;
+	margin-top: calc((#{$baseline} - #{$h5}) + #{$baseline});
+}
+
+
+h6 {
+	font-size: $h6;
+	line-height: $h6;
+	margin-top: calc((#{$baseline} - #{$h6}) + #{$baseline});
+}
