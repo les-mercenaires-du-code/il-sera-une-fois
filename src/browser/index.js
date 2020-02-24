@@ -1,3 +1,5 @@
+// import adapter from 'webrtc-adapter';
+
 import React from 'react';
 import { BrowserRouter, Switch } from 'react-router-dom';
 import { hydrate } from 'react-dom';
@@ -18,6 +20,8 @@ const main = () => {
 }
 
 loadableReady((props) => {
+
+  require('webrtc-adapter');
 
   main();
 

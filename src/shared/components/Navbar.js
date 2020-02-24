@@ -18,6 +18,14 @@ export default (props) => {
       name: 'Private',
       param: '/dashboard',
     },
+    {
+      name: 'Rooms',
+      param: '/rooms',
+    },
+    {
+      name: 'Not Found',
+      param: '/nimp',
+    },
   ];
 
   const styles = {

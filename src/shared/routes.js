@@ -7,6 +7,8 @@ import DataProvider from './utils/DataProvider';
 import ErrorBoundary from './utils/ErrorBoundary';
 import PrivateRoute from './utils/PrivateRoute';
 
+import * as graphqlRequest from './graphqlRequest';
+
 const routes = [
   {
     // async => component: loadable(props => import('./ComponentName')),
@@ -43,17 +45,33 @@ const routes = [
         },
       },
       {
+        path: '/rooms',
+        exact: true,
+        component: loadable(props => import('./components/Rooms')),
+        loadData: () => {
+
+          return graphqlRequest.getRooms();
+        },
+      },
+      {
+        path: '/room/:id',
+        component: loadable(props => import('./components/Room')),
+        loadData: (args) => {
+
+          console.log('args', args);
+          const id = _.get(args, 'params.id');
+          return graphqlRequest.getRoom(1)
+            .then((data) => data && data.roomById)
+          ;
+        },
+      },
+      {
         path: "/child/:id",
         component: loadable(props => import('./components/Child')),
         loadData: () => {
 
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve({
-                test: 'test load data for Child',
-              })
-            }, 400)
-          });
+          // return graphqlRequest.pickCard(1, 2);
+          return Promise.resolve();
         },
         routes: [
           {

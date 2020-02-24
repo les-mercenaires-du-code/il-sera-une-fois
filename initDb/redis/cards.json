@@ -1,0 +1,159 @@
+{
+  "cards": [
+    {
+      "name": "La destruction de l'usine plongea la cité à tout jamais dans le noir",
+      "type": "ending",
+      "interruption": false
+    },
+    {
+      "name": "La démocratie fut ainsi restauré pendant un temps",
+      "type": "ending",
+      "interruption": false
+    },
+    {
+      "name": "La course à la conquête de l'espace fut lancé",
+      "type": "ending",
+      "interruption": false
+    },
+    {
+      "name": "Et alors les deux peuples vécurent en paix",
+      "type": "ending",
+      "interruption": false
+    },
+    {
+      "name": "Le temps des humains fut révolu et laissa sa place à celui des cyborgs",
+      "type": "ending",
+      "interruption": false
+    },
+    {
+      "name": "Centre commercial",
+      "type": "lieu",
+      "interruption": false
+    },
+    {
+      "name": "Egouts",
+      "type": "lieu",
+      "interruption": false
+    },
+    {
+      "name": "Bar",
+      "type": "lieu",
+      "interruption": false
+    },
+    {
+      "name": "Hangar",
+      "type": "lieu",
+      "interruption": true
+    },
+    {
+      "name": "Décharge",
+      "type": "lieu",
+      "interruption": true
+    },
+    {
+      "name": "Ordinateur",
+      "type": "objet",
+      "interruption": false
+    },
+    {
+      "name": "Batte de baseball",
+      "type": "objet",
+      "interruption": false
+    },
+    {
+      "name": "Bras robotique",
+      "type": "objet",
+      "interruption": true
+    },
+    {
+      "name": "Bombe",
+      "type": "objet",
+      "interruption": false
+    },
+    {
+      "name": "Fusil",
+      "type": "objet",
+      "interruption": false
+    },
+    {
+      "name": "Gredin",
+      "type": "personnage",
+      "interruption": false
+    },
+    {
+      "name": "Recelleur",
+      "type": "personnage",
+      "interruption": true
+    },
+    {
+      "name": "Dealer",
+      "type": "personnage",
+      "interruption": false
+    },
+    {
+      "name": "Policier",
+      "type": "personnage",
+      "interruption": false
+    },
+    {
+      "name": "Senateur",
+      "type": "personnage",
+      "interruption": true
+    },
+    {
+      "name": "Hackeur",
+      "type": "personnage",
+      "interruption": false
+    },
+    {
+      "name": "Mourant",
+      "type": "aspect",
+      "interruption": true
+    },
+    {
+      "name": "En fuite",
+      "type": "aspect",
+      "interruption": true
+    },
+    {
+      "name": "Tres fort",
+      "type": "aspect",
+      "interruption": false
+    },
+    {
+      "name": "Caché",
+      "type": "aspect",
+      "interruption": false
+    },
+    {
+      "name": "Laid",
+      "type": "aspect",
+      "interruption": false
+    },
+    {
+      "name": "Une explosion",
+      "type": "evenement",
+      "interruption": true
+    },
+    {
+      "name": "La nuit tombe",
+      "type": "evenement",
+      "interruption": false
+    },
+    {
+      "name": "Un combat",
+      "type": "evenement",
+      "interruption": false
+    },
+    {
+      "name": "Qui dort",
+      "type": "evenement",
+      "interruption": false
+    },
+    {
+      "name": "Est blessé",
+      "type": "evenement",
+      "interruption": false
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+query user($myVar: ID) {
+  user(id: $myVar) {
+    id
+    name
+    room
+  }
+}
+
+query roomById($parentId: ID) {
+  roomById(id: $parentId) {
+    id
+    name
+    users {
+      id
+      name
+    }
+  }
+}
+
+query roomByName($parentName: String) {
+  roomByName(name: $parentName) {
+    id
+    name
+    users {
+      id
+      name
+    }
+  }
+}
+
+query rooms {
+  roomsList {
+    id
+    name
+    users {
+      id
+      name
+    }
+  }
+}
+
+query cards {
+  cardsList {
+    id
+    name
+    interruption
+  }
+}
+
+
+query endings {
+  endingsList {
+    id
+    ending
+  }
+}
+
+query namedoesntmatter {
+  endingsList {
+    id
+    ending
+  }
+}
+
+mutation updateRoomName($roomId: ID, $roomName: String){
+  updateRoomName(id: $roomId, name: $roomName) {
+    id,
+    name,
+  }
+}
+
+mutation joinRoom($userId: ID, $roomId: ID){
+  joinRoom(userId: $userId, roomId: $roomId) {
+    id,
+    name,
+  }
+}
+
+mutation leaveRoom($userId: ID){
+  leaveRoom(userId: $userId) {
+    id,
+    name,
+  }
+}
+
+########  QUERY VARIABLES ########
+
+{
+  "parentId": 1,
+  "myVar": 2,
+  "roomId": 1,
+  "userId": 2,
+  "roomName": "TOMMYCAUPDATE"
+}

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { css } from '@emotion/core';
+import { useHistory } from "react-router-dom";
 
 import Loader from './Loader';
-
 
 const styles = {
   main: css`
@@ -111,7 +111,11 @@ const Home = (props) => {
           <input css={styles.input} id="nickname" type="text" placeholder="Enter nickname..."
           onChange={(e) => { setNickname(e.target.value)}}
           onKeyDown={onKeyDown} />
-          <button disabled={!nickname} css={styles.join} type="button">Lobby</button>
+
+          <button
+            onClick={() => { props.history.push('/rooms') }}
+            disabled={!nickname} css={styles.join} type="button">Lobby</button>
+
           <button disabled={!nickname} css={styles.create} type="button">Create room</button>
       </div>
     </main>

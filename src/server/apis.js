@@ -50,7 +50,7 @@ async function getRoutes(options) {
     return files.filter((name) => {
       return _.endsWith(name, '.action.js');
     }).map((filename) => {
-      return `${directory}/${filename}`;
+      return path.join(directory, filename);
     });
   }).reduce((acc, actions) => {
     _.each(actions, (action) => {
@@ -68,9 +68,8 @@ async function getRoutes(options) {
 
     let module;
     try {
-      console.log('trying to require:', `${opts.baseDirectory}/${file}`);
-      module = require(`${opts.baseDirectory}/${file}`).default;
-      console.log('----------', module);
+      console.log('trying to require:', `${path.join(opts.baseDirectory, file)}`);
+      module = require(`${path.join(opts.baseDirectory, file)}`).default;
     } catch (e) {
       console.log(file, 'does not refer to an existing file');
     }
