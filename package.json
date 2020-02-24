@@ -63,6 +63,7 @@
     "express": "^4.17.1",
     "express-graphql": "^0.9.0",
     "graphql": "^14.6.0",
+    "graphql-request": "^1.8.2",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.15",
     "pg-promise": "^10.4.3",

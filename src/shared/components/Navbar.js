@@ -15,6 +15,10 @@ export default () => {
       param: '/child/id/grand-child',
     },
     {
+      name: 'Rooms',
+      param: '/rooms',
+    },
+    {
       name: 'Not Found',
       param: '/nimp',
     },
