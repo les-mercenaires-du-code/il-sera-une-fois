@@ -1,5 +1,8 @@
+import React, { useState, useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { renderRoutes } from "react-router-config";
+
+import Room from './Room';
 
 const Child = (props) => {
 
@@ -11,6 +14,9 @@ const Child = (props) => {
 
   return (
     <div>
+
+      <Room />
+
       <h2>Child</h2>
       <p>{props.user.name}</p>
       <p>{props.state.test}</p>
