@@ -16,9 +16,8 @@ https://medium.com/open-graphql/exploring-different-graphql-clients-d1bc69de305f
 
 ### Back : ###
 
-Handle environments var
 Create loggers
-Mutation querys
+Add check data coherence
 
 ### Front : ###
 

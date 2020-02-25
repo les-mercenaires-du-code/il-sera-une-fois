@@ -1,7 +1,10 @@
 import GraphQLCustomQueries from './queries';
+import GraphQLCustomMutations from './mutations';
 import GraphQlWrapper from './graphQLWrapper';
 
 import Promise from 'bluebird';
+import _ from 'lodash';
+
 const graphql = require('graphql');
 
 const {
@@ -19,6 +22,7 @@ export default class GraphQLCustomSchema extends GraphQlWrapper {
     super(logger);
 
     this.queries = new GraphQLCustomQueries(this.logger);
+    this.mutations = new GraphQLCustomMutations(this.logger, this.queries); // mutation need queries
 
     this.CardType = new GraphQLObjectType({
       name: 'Card',
@@ -37,9 +41,36 @@ export default class GraphQLCustomSchema extends GraphQlWrapper {
         name: { type: GraphQLString, },
         users: {
           type: GraphQLList(this.UserType),
-          resolve: (parentValue) => {
+          args: { userId: { type: GraphQLID }},
+          resolve: (parentValue, { userId }) => {
             return this.getDb('pg')
               .then((pgDb) => this.queries.getUsersFromRoom(parentValue.id, pgDb))
+              .then((usersList) => _.filter(usersList, users => _.toString(users.id) !== userId)) // need to work on type graphqlId who's a string ...
+            ;
+          },
+        },
+        nbUsersConnected: {
+          type: GraphQLInt,
+          resolve: (parentValue) => {
+            return this.getDb('pg')
+              .then((pgDb) => this.queries.getCountUsersInRoom(pgDb, parentValue.id))
+            ;
+          },
+        },
+        connectedUser: {
+          type: this.UserType,
+          args: { userId: { type: GraphQLID }},
+          resolve: (_, args) => {
+            return this.getDb('pg')
+              .then((pgDb) => this.queries.getUser(pgDb, args.userId))
+            ;
+          }
+        },
+        lastPlayedCard: {
+          type: this.CardType,
+          resolve: (parentValue) => {
+            return this.getDb('redis')
+              .then((redisDb) => this.queries.getLastPlayedCardFromRoom(redisDb, parentValue.id))
             ;
           },
         },
@@ -60,175 +91,118 @@ export default class GraphQLCustomSchema extends GraphQlWrapper {
             ;
           },
         },
+        handSize: {
+          type: GraphQLInt,
+          resolve: (parentValue) => {
+            return this.getDb('redis')
+              .then((redisDb) => this.queries.getHandSize(redisDb, parentValue.id))
+            ;
+          },
+        },
+        active: {
+          type: GraphQLBoolean,
+          resolve: (parentValue) => {
+            return this.getDb('redis')
+              .then((redisDb) => this.queries.getActiveUser(redisDb, parentValue))
+            ;
+          },
+        },
       }),
     });
 
     this.RootQuery = new GraphQLObjectType({
       name: 'RootQueryType',
       fields: {
-        // user: {
-        //   type: this.UserType,
-        //   args: { id: { type: GraphQLID }},
-        //   resolve: (parentValue, args) => {
-        //     const query = `SELECT * FROM "users" WHERE id=${args.id}`;
-        //     this.logger.debug('Query user', parentValue, args, query);
-        //     return this.db.one(query)
-        //       .catch((err) => {
-        //         this.logger.error(err);
-        //         throw err;
-        //       })
-        //     ;
-        //   },
-        // },
         roomById: {
           type: this.RoomType,
-          args: { id: { type: GraphQLID }},
-          resolve: (_, args) => {
-            return this.getDb('pg')
-              .tap(() => this.logger.debug('Query roomById', args))
-              .then((pgDb) => this.queries.getRoomById(args.roomId, pgDb))
-            ;
-          },
-        },
-        // roomByName: {
-        //   type: this.RoomType,
-        //   args: { name: { type: GraphQLString }},
-        //   resolve: (parentValue, args) => {
-        //     const query = `SELECT * FROM "rooms" WHERE name='${args.name}'`;
-        //     this.logger.debug('Query roomByName', parentValue, args, query);
-        //     return this.db.one(query)
-        //       .catch((err) => {
-        //         this.logger.error(err);
-        //         throw err;
-        //       })
-        //     ;
-        //   },
-        // },
-        roomsList: {
-          type: GraphQLList(this.RoomType),
-          resolve: (parentValue) => {
-            return this.getDb('pg')
-              .tap(() => this.logger.debug('Query roomsList', parentValue))
-              .then((pgDb) => this.queries.roomsList(pgDb))
-            ;
-          },
-        },
-        pickCard: {
-          type: this.CardType,
           args: {
             roomId: { type: GraphQLID },
             userId: { type: GraphQLID },
           },
-          resolve: (_, args) => {
-            return Promise.all([this.getDb('pg'), this.getDb('redis')])
-              .tap(() => this.logger.debug('Query pickCard', args))
-              .then(([pgDb, redisDb]) => this.queries.pickCard(args.roomId, args.userId, pgDb, redisDb))
+          resolve: (_, { roomId, userId }) => {
+            return this.getDb('pg')
+              .tap(() => this.logger.debug('Query roomById', { roomId }))
+              .then((pgDb) => this.queries.getRoomById(roomId, pgDb))
             ;
           },
-        }
-        // cardsList: {
-        //   type: GraphQLList(this.CardType),
-        //   resolve: (parentValue, args) => {
-        //     const query = `SELECT * FROM "cards"`;
-        //     this.logger.debug('Query cardsList', parentValue, args, query);
-        //     return this.db.many(query)
-        //       .catch((err) => {
-        //         this.logger.error(err);
-        //         throw err;
-        //       })
-        //     ;
-        //   },
-        // },
-        // endingsList: {
-        //   type: GraphQLList(this.EndingType),
-        //   resolve: (parentValue, args) => {
-        //     const query = `SELECT * FROM "endings"`;
-        //     this.logger.debug('Query endingsList', parentValue, args, query);
-        //     return this.db.many(query)
-        //       .catch((err) => {
-        //         this.logger.error(err);
-        //         throw err;
-        //       })
-        //     ;
-        //   },
-        // },
+        },
+        roomsList: {
+          type: GraphQLList(this.RoomType),
+          resolve: () => {
+            return this.getDb('pg')
+              .tap(() => this.logger.debug('Query roomsList'))
+              .then((pgDb) => this.queries.roomsList(pgDb))
+            ;
+          },
+        },
       },
     });
 
-    // this.RootMutation = new GraphQLObjectType({
-    //   name: 'RootMutation',
-    //   fields: {
-    //     updateRoomName: {
-    //       type: RoomType,
-    //       args: {
-    //         id: { type: GraphQLID },
-    //         name: { type: GraphQLString },
-    //       },
-    //       resolve: (parentValue, args) => {
-    //         const query = `
-    //           UPDATE "rooms"
-    //           SET name='${args.name}'
-    //           WHERE id=${args.id}
-    //           RETURNING *
-    //         `;
-    //         this.logger.debug('Mutation updateRoomName', args, query);
-    //         return this.db.one(query)
-    //           .catch((err) => {
-    //             this.logger.error(err);
-    //             throw err;
-    //           })
-    //         ;
-    //       },
-    //     },
-    //     joinRoom: {
-    //       type: UserType,
-    //       args: {
-    //         roomId: { type: GraphQLID },
-    //         userId: { type: GraphQLID },
-    //       },
-    //       resolve: (parentValue, args) => {
-    //         const query = `
-    //           UPDATE "users"
-    //           SET room='${args.roomId}'
-    //           WHERE id=${args.userId}
-    //           RETURNING *
-    //         `;
-    //         this.logger.debug('Mutation joinRoom', args, query);
-    //         return this.db.one(query)
-    //           .catch((err) => {
-    //             this.logger.error(err);
-    //             throw err;
-    //           })
-    //         ;
-    //       }
-    //     },
-    //     leaveRoom: {
-    //       type: UserType,
-    //       args: {
-    //         userId: { type: GraphQLID },
-    //       },
-    //       resolve: (parentValue, args) => {
-    //         const query = `
-    //           UPDATE "users"
-    //           SET room=null
-    //           WHERE id=${args.userId}
-    //           RETURNING *
-    //         `;
-    //         this.logger.debug('Mutation leaveRoom', args, query);
-    //         return this.db.one(query)
-    //           .catch((err) => {
-    //             this.logger.error(err);
-    //             throw err;
-    //           })
-    //         ;
-    //       },
-    //     },
-    //   },
-    // });
+    this.RootMutation = new GraphQLObjectType({
+      name: 'RootMutation',
+      fields: {
+        joinRoom: {
+          type: this.UserType,
+          args: {
+            roomId: { type: GraphQLID },
+            userId: { type: GraphQLID },
+          },
+          resolve: (_, { userId, roomId }) => {
+
+            return this.getDb('pg')
+              .tap(() => this.logger.debug('Mutation joinRoom', { userId, roomId }))
+              .then((pgDb) => this.mutations.joinRoom(pgDb, userId, roomId))
+            ;
+          },
+        },
+        leaveRoom: {
+          type: this.UserType,
+          args: {
+            userId: { type: GraphQLID },
+          },
+          resolve: (_, { userId }) => {
+
+            return this.getDb('pg')
+              .tap(() => this.logger.debug('Mutation leaveRoom', { userId }))
+              .then((pgDb) => this.mutations.leaveRoom(pgDb, userId))
+            ;
+          },
+        },
+        pickCards: {
+          type: GraphQLList(this.CardType),
+          args: {
+            roomId: { type: GraphQLID },
+            userId: { type: GraphQLID },
+            nbCardToDraw: { type: GraphQLInt },
+          },
+          resolve: (_, { roomId, userId, nbCardToDraw }) => {
+
+            return Promise.all([this.getDb('pg'), this.getDb('redis')])
+              .tap(() => this.logger.debug('Mutation pickCards', { roomId, userId, nbCardToDraw }))
+              .then(([pgDb, redisDb]) => this.mutations.pickCards(roomId, userId, nbCardToDraw, pgDb, redisDb))
+            ;
+          },
+        },
+        pickEndings: {
+          type: GraphQLList(this.CardType),
+          args: {
+            roomId: { type: GraphQLID },
+            userId: { type: GraphQLID },
+          },
+          resolve: (_, { roomId, userId }) => {
+
+            return Promise.all([this.getDb('pg'), this.getDb('redis')])
+              .tap(() => this.logger.debug('Mutation pickEndings', { roomId, userId }))
+              .then(([pgDb, redisDb]) => this.mutations.pickEndings(redisDb, roomId, userId))
+            ;
+          },
+        },
+      },
+    });
 
     this.schema = new GraphQLSchema({
       query: this.RootQuery,
-      // mutation: RootMutation,
+      mutation: this.RootMutation,
     });
   }
 }

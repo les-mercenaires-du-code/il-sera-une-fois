@@ -3,12 +3,46 @@ import _ from 'lodash';
 export const getRoomById = _.template(
   `
     {
-      roomById(id: <%= id %>) {
+      roomById(roomId: <%= id %>) {
         id
         name
         users {
           id
           name
+        }
+      }
+    }
+  `
+);
+
+export const getRoomByIdWithCurrentUserHand = _.template(
+  `
+    query roomById($roomId: ID, $userId: ID) {
+      roomById(roomId: $roomId) {
+        id
+        name
+        users(userId: $userId) {
+          id
+          name
+          handSize
+          active
+        }
+        connectedUser(userId: $userId) {
+          id
+          name
+          hand {
+            id
+            name
+            interruption
+            type
+          }
+          room
+          active
+        }
+        lastPlayedCard {
+          id
+          name
+          type
         }
       }
     }
@@ -21,24 +55,39 @@ export const getRooms = _.template(
       roomsList {
         id
         name
-        users {
-          id
-          name
-          room
-          hand {
-            id
-            name
-          }
-        }
+        nbUsersConnected
       }
     }
   `
 );
 
-export const pickCard = _.template(
+export const joinRoom = _.template(
   `
-    query pickCard($roomId: ID, $userId: ID ) {
-      pickCard(roomId: $roomId, userId: $userId) {
+    mutation joinRoom($roomId: ID, $userId: ID) {
+      joinRoom(roomId: $roomId, userId: $userId) {
+        name
+      }
+    }
+  `
+)
+
+export const pickCards = _.template(
+  `
+    mutation pickCards($roomId: ID, $userId: ID, $nbCardToDraw: Int) {
+      pickCards(roomId: $roomId, userId: $userId, nbCardToDraw: $nbCardToDraw) {
+        id
+        name
+        type
+        interruption
+      }
+    }
+  `
+);
+
+export const pickEndings = _.template(
+  `
+    mutation pickEndings($roomId: ID, $userId: ID) {
+      pickEndings(roomId: $roomId, userId: $userId) {
         id
         name
         type

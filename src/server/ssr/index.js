@@ -82,7 +82,7 @@ export default function ssr(options = defaultOptions) {
         res.send(html);
       })
       .catch((err) => {
-
+        console.log('Error while loading component', err);
         return res.redirect('/error');
       })
     ;

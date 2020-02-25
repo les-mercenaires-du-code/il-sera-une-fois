@@ -42,8 +42,8 @@ const routes = [
         path: '/room/:id',
         component: loadable(props => import('./components/Room')),
         loadData: (args) => {
-
-          return graphqlRequest.getRoom(_.get(args, 'params.id'))
+          return graphqlRequest.joinRoom(_.get(args, 'params.id'), 2) // need to remove user as params and get it from cookie
+            .then(() => graphqlRequest.getRoomByIdWithCurrentUserHand(_.get(args, 'params.id'), 2))
             .then((data) => data.roomById)
           ;
         },
@@ -53,7 +53,7 @@ const routes = [
         component: loadable(props => import('./components/Child')),
         loadData: () => {
 
-          return graphqlRequest.pickCard(1, 2);
+          return graphqlRequest.pickCards(1, 2, 1);
         },
         routes: [
           {
@@ -137,7 +137,6 @@ function getWrapper(route) {
 function wrapRoutes(routes) {
 
   _.each(routes, (route) => {
-
     route.component = getWrapper(route);
     if (route.routes) {
       wrapRoutes(route.routes);
