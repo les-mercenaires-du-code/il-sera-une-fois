@@ -4,7 +4,6 @@ import { css } from '@emotion/core';
 
 import Loader from '../utils//Loader';
 
-
 const styles = {
   main: css`
     padding: 80px;

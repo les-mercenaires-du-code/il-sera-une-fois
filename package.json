@@ -51,6 +51,7 @@
   "dependencies": {
     "@babel/node": "^7.6.2",
     "@emotion/core": "^10.0.22",
+    "@hapi/joi": "^17.1.0",
     "@loadable/component": "^5.10.3",
     "@loadable/server": "^5.10.3",
     "axe-prop-types": "^1.0.9",
@@ -58,15 +59,22 @@
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "cross-env": "^6.0.2",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "graphql": "^14.6.0",
+    "graphql-request": "^1.8.2",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "pg-promise": "^10.4.3",
     "polished": "^3.4.2",
     "prop-types": "^15.7.2",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",
     "react-router-config": "^5.1.1",
     "react-router-dom": "^5.1.2",
+    "redis": "^3.0.2",
     "serialize-javascript": "^2.1.0"
   }
 }

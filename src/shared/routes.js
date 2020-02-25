@@ -6,6 +6,8 @@ import loadable from '@loadable/component';
 import DataProvider from './utils/DataProvider';
 import ErrorBoundary from './utils/ErrorBoundary';
 
+import * as graphqlRequest from './graphqlRequest';
+
 const routes = [
   {
     // async => component: loadable(props => import('./ComponentName')),
@@ -28,17 +30,30 @@ const routes = [
         }
       },
       {
+        path: '/rooms',
+        exact: true,
+        component: loadable(props => import('./components/Rooms')),
+        loadData: () => {
+
+          return graphqlRequest.getRooms();
+        },
+      },
+      {
+        path: '/room/:id',
+        component: loadable(props => import('./components/Room')),
+        loadData: (args) => {
+
+          return graphqlRequest.getRoom(_.get(args, 'params.id'))
+            .then((data) => data.roomById)
+          ;
+        },
+      },
+      {
         path: "/child/:id",
         component: loadable(props => import('./components/Child')),
         loadData: () => {
 
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve({
-                test: 'test load data for Child',
-              })
-            }, 400)
-          });
+          return graphqlRequest.pickCard(1, 2);
         },
         routes: [
           {

@@ -1,5 +1,6 @@
 import path from 'path';
 import express from 'express';
+import expressGraphQL from 'express-graphql';
 import cors from 'cors';
 import compression from 'compression';
 
@@ -10,7 +11,7 @@ import getRoutes from './apis.js';
  ** createServer
  ** Create an express server that handles developpment or production
   */
-async function createServer() {
+async function createServer(graphQl) {
 
   global.__isBrowser__ = false; // used by shared components
 
@@ -50,6 +51,10 @@ async function createServer() {
   const compiler = webpack(config); // get webpack compiler
 
   app
+    .use('/graphql', expressGraphQL({
+      schema: graphQl.schema,
+      graphiql: true,
+    }))
     .use(express.static('src/public')) // serve static files
     .use(webpackDevMiddleware(compiler, { // create developpment server
       /* webpack middleware options */
