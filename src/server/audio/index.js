@@ -48,7 +48,7 @@ class AudioWS extends Rooms {
 
     const binaryCb = (params) => {
       const sockets = this.getSocketsBySocketId(socketId);
-      this.broadcastStream(sockets, params);        
+      this.broadcastStream(sockets, params);
     };
 
     socket.on('joinRoom', (params) => {

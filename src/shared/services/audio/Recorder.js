@@ -1,18 +1,13 @@
 class Recorder {
-  constructor(options = {}) {
+  constructor(audioContext, options = {}) {
 
+
+    console.log('recorder', options);
     if (!_.isObject(options)) {
       throw new Error('[Recorder.constructor] options must be an object');
     }
 
-    const AudioContext = window &&
-      (window.AudioContext || window.webkitAudioContext);
-
-
-    if (!AudioContext) {
-      // trying to initialize on server ??
-      throw new Error('[Recorder.constructor] AudioContext must be defined');
-    }
+    this._audioCtx = audioContext;
 
     if (!window || !window.navigator || !window.navigator.mediaDevices || !window.navigator.mediaDevices.getUserMedia) {
       throw new Error('[Recorder.constructor] getUserMedia is not supported');
@@ -20,115 +15,165 @@ class Recorder {
 
     // buffer size should match between front and back ends
     this._bufferSize = options.bufferSize || 2048;
-    // store audioContext
-    this._AudioContext = AudioContext;
+
     // empty buffer needed for audio context initialization
     this._constraints = {
-      audio: true,
+      audio: {
+        sampleRate: this._sampleRate,
+        echoCancellation: true,
+      },
       video: false,
     };
 
-    this._audioCtx = null;
-    this._input = null;
-    this._processor = null;
-
+    // how many samples per seconds
+    // different browsers have different value
+    // TODO check if we can systematically enforce this
+    this._sampleRate = 8000;
     this.ready = false;
+    this._buffer = [];
   }
 
-  polyfillMediaDevice() {
+  start(cb) {
 
-    if (navigator.mediaDevices === undefined) {
-      navigator.mediaDevices = {};
+    if (this.ready) {
+      return;
     }
 
-    // Some browsers partially implement mediaDevices. We can't just assign an object
-    // with getUserMedia as it would overwrite existing properties.
-    // Here, we will just add the getUserMedia property if it's missing.
-    if (navigator.mediaDevices.getUserMedia === undefined) {
-
-      navigator.mediaDevices.getUserMedia = function(constraints) {
-
-        // First get ahold of the legacy getUserMedia, if present
-        var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
-
-        // Some browsers just don't implement it - return a rejected promise with an error
-        // to keep a consistent interface
-        if (!getUserMedia) {
-          return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-        }
-
-        // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-        return new Promise(function(resolve, reject) {
-          getUserMedia.call(navigator, constraints, resolve, reject);
-        });
-      }
-    }
-
-  }
-
-  init(cb) {
-
+    console.log('start');
     if (!_.isFunction(cb)) {
-      throw new Error('[Player.init] cb must be a function');
+      throw new Error('[Player.start] cb must be a function');
     }
-
+    // store for later use by worlet node
     this._cb = cb;
 
-    const numberOfInputChannels = 1;
-    const numberOfOutputChannels = 1;
-
-    this._audioCtx = new this._AudioContext({
-      // https:// developer.mozilla.org/en-US/docs/Web/API/AudioContextLatencyCategory
-      latencyHint: 'interactive',
-    });
-
-
-    return this._audioCtx.suspend()
+    return this.loadWorkletProcessor()
+      .then(() => this.getLiveStream())
+      .then((audioIn) => this.connectWorkletNode(audioIn))
       .then(() => {
 
-        this._processor = this._audioCtx.createScriptProcessor(this._bufferSize, numberOfInputChannels, numberOfOutputChannels);
-
-        this._processor.connect(this._audioCtx.destination);
-
+        // it will not record if audio context is suspended
+        if (this._audioCtx.state === "suspended") {
+          this._audioCtx.resume();
+        }
         this.ready = true;
-        return window.navigator
-          .mediaDevices
-          .getUserMedia({ audio: { echoCancellation: true } })
-          .then((stream) => this.handleSuccess(stream))
-        ;
+        console.log('ready');
+      })
+      .catch((err) => console.log('init error', err))
+    ;
+  }
+
+  connectWorkletNode(audioIn) {
+
+    console.log('connectWorkletNode', this._cb);
+    this._audioIn = audioIn;
+    this._recorder = new AudioWorkletNode(this._audioCtx, 'recorder');
+    this._recorder.port.onmessage = (event) => this._cb(event.data);
+
+    this._audioIn.connect(this._recorder);
+    this._recorder.connect(this._audioCtx.destination);
+
+    console.log(this);
+  }
+
+  getLiveStream() {
+
+    console.log('getLiveStream');
+    return window.navigator
+      .mediaDevices
+      // capture audio only
+      .getUserMedia(this._constraints)
+      .then((userMediaStream) => {
+        // keep reference to be able to stop
+        this._userMedia = userMediaStream;
+        return userMediaStream;
+      })
+      // create a media stream source that we can feed to processor
+      .then((stream) => this._audioCtx.createMediaStreamSource(stream))
+      .catch((err) => {
+        console.log('getLiveStream error', err);
       })
     ;
-
   }
 
-  handleSuccess(stream) {
-
-    this._input = this._audioCtx.createMediaStreamSource(stream);
-    this._input.connect(this._processor);
-
-    this._processor.onaudioprocess = (e) => this.process(e);
+  loadWorkletProcessor() {
+    console.log('loadWorkletProcessor');
+    return this._audioCtx
+      .audioWorklet
+      .addModule('/worklet/recorder.js')
+      .catch((err) => {
+        console.log('loadWorklet error', err);
+      })
+    ;
   }
 
-  process(e) {
+  stop() {
 
-    const arrayBuffer = e.inputBuffer.getChannelData(0);
-    return this._cb(arrayBuffer.buffer);
-  }
-
-  start() {
-
-    if (!this._audioCtx || this._audioCtx.state !== 'suspended') {
-      return Promise.resolve();
+    if (!this.ready) {
+      return;
     }
 
-    // promise
-    return this._audioCtx.resume();
-  }
+    // stop capturing audio from mic
+    this._userMedia.getTracks().forEach(track => track.stop());
+    this._userMedia = null;
 
-  pause() {
+    // disconnect audio stream
+    this._audioIn.disconnect(this._recorder);
+    this._audioIn = null;
 
-    return this._audioCtx.suspend();
+    // disconnect processor
+    this._recorder.disconnect(this._audioCtx.destination);
+    this.recorder = null;
+
+    this.ready = false;
+
+    console.log('stopped');
   }
 }
 
 export default Recorder;
+
+
+
+  //
+  // handleSuccess(stream) {
+  //
+  //   console.log('handleSuccess');
+  //   try {
+  //     this._recorder = new MediaRecorder(stream, {
+  //       bitsPerSecond: 128000
+  //     });
+  //   } catch (e) {
+  //     console.error('Exception while creating MediaRecorder: ' + e);
+  //     return;
+  //   }
+  //
+  //   this._recorder.ondataavailable = (event) => this.processData(event);
+  //
+  //
+  //   // this._input = this._audioCtx.createMediaStreamSource(stream);
+  //   // this._input.connect(this._processor);
+  //   //
+  //   // this._processor.onaudioprocess = (e) => this.process(e);
+  // }
+  //
+  // processData(event) {
+  //
+  //   console.log(' Recorded chunk of size ' + event.data.size + "B");
+  //
+  //   let fileReader = new FileReader();
+  //   let arrayBuffer;
+  //
+  //   fileReader.onloadend = () => {
+  //
+  //     arrayBuffer = fileReader.result;
+  //     console.log('now', arrayBuffer);
+  //   }
+  //
+  //   fileReader.readAsArrayBuffer(event.data);
+  //
+  //   console.log(event);
+  //   // should have data.event of type Blob
+  //
+  //   // const float32 = e.inputBuffer.getChannelData(0);
+  //   return this._cb(event.data);
+  // }

@@ -61,8 +61,8 @@ class IO {
 
       // console.log(this.streamCb);
       // console.log('audio ws', audio);
-      const audio = new Float32Array(data);
-      this.streamCb(audio);
+      // const audio = new Float32Array(data);
+      this.streamCb(data);
       // this.audioQueue.write(audio);
     });
   }

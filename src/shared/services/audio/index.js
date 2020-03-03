@@ -2,11 +2,32 @@ import Recorder from './Recorder';
 import Player from './Player';
 import IO from './IO';
 
+
+// https://webaudio.github.io/web-audio-api/#audioworklet
 class AudioManager {
   constructor() {
 
-    this.recorderCb = this.recorderCb.bind(this);
+    // this.recorderCb = this.recorderCb.bind(this);
+
+    const AudioContext = window &&
+      (window.AudioContext || window.webkitAudioContext);
+
+
+    if (!AudioContext) {
+      // trying to initialize on server ??
+      throw new Error('[Recorder.constructor] AudioContext must be defined');
+    }
+
+    this._AudioContext = AudioContext;
+    // we only need one audio context
+    // better to add or remove audio nodes from a context than creating multiple context
+    this._audioCtx = new this._AudioContext({
+      // https:// developer.mozilla.org/en-US/docs/Web/API/AudioContextLatencyCategory
+      latencyHint: 'interactive',
+    });
+
   }
+
 
   async init(roomId) {
 
@@ -19,16 +40,19 @@ class AudioManager {
     }
 
     if (!this.player) {
-      this.player = new Player();
-      await this.player.init();
+      this.player = new Player(this._audioCtx, {});
     }
+
+    await this.player.init();
+    await this.io.start(roomId, (data) => {
+      this.player._player.port.postMessage(data);
+    })
 
     if (!this.recorder) {
-      this.recorder = new Recorder();
-      await this.recorder.init(this.recorderCb);
+      this.recorder = new Recorder(this._audioCtx, {
+        roomId,
+      });
     }
-
-    await this.io.start(roomId, this.player.bufferWrite)
   }
 
   async stop() {
@@ -43,7 +67,7 @@ class AudioManager {
 
   startPlayer() {
 
-    if (!this.player || !this.player.ready) {
+    if (!this.player || this.player.ready) {
       return Promise.resolve();
     }
 
@@ -56,16 +80,19 @@ class AudioManager {
       return Promise.resolve();
     }
 
-    return this.player.pause();
+    return this.player.stop();
   }
 
   startRecorder() {
 
-    if (!this.recorder || !this.recorder.ready) {
+    if (!this.recorder) {
       return;
     }
 
-    return this.recorder.start();
+    return this.recorder.start((data) => {
+      console.log('sending binary');
+      this.io.socket.emit('binary', data);
+    });
   }
 
 
@@ -75,17 +102,17 @@ class AudioManager {
       return;
     }
 
-    return this.recorder.pause();
+    return this.recorder.stop();
   }
-
-  recorderCb(data) {
-
-    if (!this.io.open) {
-      return;
-    }
-
-    this.io.socket.emit('binary', data);
-  }
+  //
+  // recorderCb(data) {
+  //
+  //   if (!this.io.open) {
+  //     return;
+  //   }
+  //
+  //   this.io.socket.emit('binary', data);
+  // }
 }
 
 export default AudioManager;
