@@ -18,10 +18,11 @@ class IO {
     this.shouldJoin = true;
   }
 
-  async start(roomId, streamCb) {
+  async start(roomId, cbs) {
 
-    if (!_.isFunction(streamCb)) {
-      throw new Error('[IO.start] streamCb must be a function');
+
+    if (!_.isFunction(cbs.onJoin) || !_.isFunction(cbs.onLeave) || !_.isFunction(cbs.onData)) {
+      throw new Error('[IO.start] cbs must be a functions');
     }
 
     if (!_.isNumber(roomId)) {
@@ -29,14 +30,22 @@ class IO {
     }
 
     this.roomId = roomId;
-    this.streamCb = streamCb;
+    this.streamCb = cbs.onData;
     this.socket = ws.connect(this.uri, {'forceNew':true});
     this.open = true;
 
     this.socket.on('connect', () => {
       this.joinRoom();
-      this.listenToStream();
     })
+
+    this.socket.on('register', (ids) => {
+      _.each(ids, (id) => {
+        cbs.onJoin(this.socket, id);
+      })
+    })
+
+    this.socket.on('join', (id) => cbs.onJoin(this.socket, id));
+    this.socket.on('leave', (id) => cbs.onLeave(this.socket, id))
 
     this.socket.on('disconnect', (reason) => {
       if (reason !== 'transport close') {
@@ -49,22 +58,6 @@ class IO {
 
 
     return this.socket.id;
-  }
-
-  listenToStream() {
-
-    if (!this.socket) {
-      return;
-    }
-
-    this.socket.on('stream', (data) => {
-
-      // console.log(this.streamCb);
-      // console.log('audio ws', audio);
-      // const audio = new Float32Array(data);
-      this.streamCb(data);
-      // this.audioQueue.write(audio);
-    });
   }
 
   joinRoom() {

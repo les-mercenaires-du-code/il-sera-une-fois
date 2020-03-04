@@ -99,7 +99,7 @@ class Recorder {
     console.log('loadWorkletProcessor');
     return this._audioCtx
       .audioWorklet
-      .addModule('/worklet/recorder.js')
+      .addModule('/worklet/streamOutProcessor.js')
       .catch((err) => {
         console.log('loadWorklet error', err);
       })
