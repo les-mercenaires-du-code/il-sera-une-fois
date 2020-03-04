@@ -98,6 +98,21 @@ class Rooms {
     delete this._sockets[socketId];
   }
 
+  getSocketsIdByRoomId(roomId, socketId) {
+
+    if (!_.isNumber(roomId)) {
+      throw new Error(`[Rooms.getSocketsIdByRoomId] roomId: '${roomId}' must be a Number`);
+    }
+
+    const socketIds = this._rooms[roomId];
+
+    if (!socketId) {
+      return socketIds;
+    }
+
+    return _.without(socketIds, socketId);
+  }
+
   getSocketsByRoomId(roomId, socketId) {
 
     if (!_.isNumber(roomId)) {
@@ -134,7 +149,8 @@ class Rooms {
     const socketData = this._sockets[socketId];
 
     if (_.isUndefined(socketData)) {
-      throw new Error(`[Rooms.getSocketsBySocketId] socketId: '${socketId}' does not reference a socket in registry`);
+      console.log(`[Rooms.getSocketsBySocketId] socketId: '${socketId}' does not reference a socket in registry`);
+      return [];
     }
 
     const roomId = socketData.roomId;

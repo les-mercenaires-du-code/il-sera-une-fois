@@ -35,7 +35,7 @@ class Player {
   init() {
     return this._audioCtx
       .audioWorklet
-      .addModule('/worklet/player.js')
+      .addModule('/worklet/streamInProcessor.js')
       .then((res) => {
 
         this._player = new AudioWorkletNode(this._audioCtx, 'player');

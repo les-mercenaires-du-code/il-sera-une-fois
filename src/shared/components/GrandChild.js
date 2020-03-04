@@ -43,8 +43,8 @@ const GrandChild = (props) => {
       <h3>Grand Childrend</h3>
       <button type="button" onClick={() => audio.startRecorder()}>Start recorder</button>
       <button type="button" onClick={() => audio.stopRecorder()}>Stop recorder</button>
-      <button type="button" onClick={() => audio.startPlayer()}>Start player</button>
-      <button type="button" onClick={() => audio.stopPlayer()}>Stop player</button>
+      <button type="button" onClick={() => audio.startPlayers()}>Start player</button>
+      <button type="button" onClick={() => audio.stopPlayers()}>Stop player</button>
 
     </div>
   );
