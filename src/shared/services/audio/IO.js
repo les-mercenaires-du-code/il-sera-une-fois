@@ -21,16 +21,16 @@ class IO {
   async start(roomId, cbs) {
 
 
-    if (!_.isFunction(cbs.onJoin) || !_.isFunction(cbs.onLeave) || !_.isFunction(cbs.onData)) {
-      throw new Error('[IO.start] cbs must be a functions');
-    }
+    // if (!_.isFunction(cbs.onJoin) || !_.isFunction(cbs.onLeave) || !_.isFunction(cbs.onData)) {
+    //   throw new Error('[IO.start] cbs must be a functions');
+    // }
 
     if (!_.isNumber(roomId)) {
       throw new Error('[IO.start] roomId must be a number');
     }
 
     this.roomId = roomId;
-    this.streamCb = cbs.onData;
+    // this.streamCb = cbs.onData;
     this.socket = ws.connect(this.uri, {'forceNew':true});
     this.open = true;
 

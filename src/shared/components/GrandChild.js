@@ -9,6 +9,9 @@ let init = false;
 const GrandChild = (props) => {
   //
 
+  const [players, setPlayers] = useState([]);
+
+
   useEffect(() => {
 
     (async function doAsync() {
@@ -19,10 +22,10 @@ const GrandChild = (props) => {
 
       init = true;
       const roomId = 0;
-      audio = new Audio();
+      audio = new Audio(setPlayers);
       await audio.init(roomId);
 
-    })()
+    })();
 
     return() => Promise.all([
       audio.stop(),
@@ -41,8 +44,22 @@ const GrandChild = (props) => {
   return (
     <div>
       <h3>Grand Childrend</h3>
-      <button type="button" onClick={() => audio.startRecorder()}>Start recorder</button>
-      <button type="button" onClick={() => audio.stopRecorder()}>Stop recorder</button>
+      {
+        _.map(audio._players._ids, (player, id) => {
+          return (
+            <div key={id}>
+              <h3>user: {player} is in the room</h3>
+            </div>
+          );
+        })
+      }
+
+      {audio && audio.recorder && audio.recorder.ready ? <p>recording...</p> : <p>'not recording</p>}
+      <button
+        disable={audio && audio.recorder && audio.recorder.ready} type="button" onClick={() => audio.startRecorder()}>Start recorder</button>
+      <button
+        disable={audio && audio.recorder && !audio.recorder.ready}
+        type="button" onClick={() => audio.stopRecorder()}>Stop recorder</button>
       <button type="button" onClick={() => audio.startPlayers()}>Start player</button>
       <button type="button" onClick={() => audio.stopPlayers()}>Stop player</button>
 

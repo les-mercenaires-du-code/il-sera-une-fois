@@ -7,8 +7,9 @@ import Players from './Players';
 // wrap one recorder for current user
 // wrap as many player as users in the room (except our current user)
 class AudioManager {
-  constructor() {
+  constructor(setPlayers) {
 
+    this._setPlayers = setPlayers;
     const AudioContext = window &&
       (window.AudioContext || window.webkitAudioContext);
 
@@ -59,6 +60,8 @@ class AudioManager {
 
       // add listenner to get other user audio data
       socket.on(id, dataCb);
+
+      this._setPlayers(this._players._ids)
     }
 
     // this cb will be invoked by ws when a user leave the room
@@ -68,22 +71,23 @@ class AudioManager {
 
       // remove listenner for audio data
       socket.off(id, dataCb);
+      this._setPlayers(this._players._ids);
     }
 
-    // this cb will be invoked by ws when audio data is received
-    const onData = (id, data) => {
-      console.log('id', id);
-      console.log('data', data);
-      // this.player._player.port.postMessage(data);
-      // this.player2._player.port.postMessage(data);
-    }
+    // // this cb will be invoked by ws when audio data is received
+    // const onData = (id, data) => {
+    //   console.log('id', id);
+    //   console.log('data', data);
+    //   // this.player._player.port.postMessage(data);
+    //   // this.player2._player.port.postMessage(data);
+    // }
 
     // - start ws connection
     // - join room
     await this.io.start(roomId, {
       onJoin,
       onLeave,
-      onData,
+      // onData,
     });
 
     // create recorder
@@ -143,15 +147,6 @@ class AudioManager {
 
     return this.recorder.stop();
   }
-  //
-  // recorderCb(data) {
-  //
-  //   if (!this.io.open) {
-  //     return;
-  //   }
-  //
-  //   this.io.socket.emit('binary', data);
-  // }
 }
 
 export default AudioManager;
