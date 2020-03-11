@@ -21,7 +21,7 @@ export default class GraphQlWrapper {
     }
 
     if (this.dbs[name]) {
-      throw new Error(`[graphql][registerDb] A db is already registered at this name ${name}`)
+      throw new Error(`[graphql][registerDb] A db is already registered at this name ${name}`);
     }
 
     this.dbs[name] = db;
@@ -39,7 +39,7 @@ export default class GraphQlWrapper {
             resolve(this.dbs[name].db);
           }
 
-          reject(new Error(`[graphql][getDb] Db ${name} is unavailable`))
+          reject(new Error(`[graphql][getDb] Db ${name} is unavailable`));
         })
       ;
     });

@@ -1,4 +1,7 @@
 import _ from 'lodash';
+import Promise from 'bluebird';
+
+import { redisPrefix, Utils } from './utils'
 
 const mockLogger = {
   info: console.log,
@@ -8,8 +11,10 @@ const mockLogger = {
   debug: console.log,
 };
 
-export default class GraphQLCustomQueries {
+export default class GraphQLCustomQueries extends Utils {
   constructor(logger) {
+    super(logger);
+
     this.logger = logger;
   }
 
@@ -31,15 +36,40 @@ export default class GraphQLCustomQueries {
     ;
   }
 
+  getUser(pgDb, userId) {
+    if (!pgDb) {
+      throw new Error(`[queries][getUser] pgDb is missing`);
+    }
+
+    const query = `SELECT * FROM "users" WHERE id=${userId}`;
+    return pgDb.one(query);
+  }
+
+  getCountUsersInRoom(pgDb, roomId) {
+    if (!pgDb) {
+      throw new Error(`[queries][getCountUsersInRoom] pgDb is missing`);
+    }
+
+    const query = `SELECT COUNT(*) FROM "users" WHERE room=${roomId}`;
+    return pgDb.one(query)
+      .then((res) => _.get(res, 'count', 0)) // pgDb return an object with a field count
+    ;
+  }
+
+  getHandSize(redisDb, id) {
+    if (!redisDb) {
+      throw new Error(`[queries][getHandSize] redisDb is missing`);
+    }
+
+    return redisDb.scard(this._addPrefixToKey(id, redisPrefix.HAND));
+  }
+
   getUserCards(user, redisDb) {
     if (!redisDb) {
       throw new Error(`[queries][getUsersCards] redisDb is missing`);
     }
 
-    const prefix = 'hand:'
-    const key = 'hand:' + user.id;
-
-    return redisDb.smembers(key)
+    return redisDb.smembers(this._addPrefixToKey(user.id, redisPrefix.HAND))
       .then((cardsIds) => {
         if (!_.size(cardsIds)) {
           return [];
@@ -81,43 +111,33 @@ export default class GraphQLCustomQueries {
     ;
   }
 
-  // pickCard is getting a card whose not in players hand and not in the cardPlayed of the room
-  // this way we do not have to manage a full set of card for each room
-  pickCard(roomId, userId, pgDb, redisDb) {
-    return this.getUsersFromRoom(roomId, pgDb)
-      .then((users) => {
-        const handsKeys = _.map(users, user => `hand:${user.id}`);
-        const roomKey = `cardPlayed:${roomId}`;
-        return redisDb.sunion([...handsKeys, roomKey]);
-      })
-      .then((notAvailableCardsKeys) => this.removePrefixFromKeys(notAvailableCardsKeys, 'card:'))
-      .then(async (notAvailableCards) => {
-        const totalCardNumber = await redisDb.scard('cardSet'); // TODO maybe cache it?
-        const randomCardId = this.randomIntFromIntervalAndNotIn(0, totalCardNumber - 1, notAvailableCards);
-        return randomCardId;
-      })
-      .then((randomCardId) => {
-        return redisDb.get(`card:${randomCardId}`) // getting the card
-          .then((card) => redisDb.sadd(`hand:${userId}`, `card:${randomCardId}`).return(card)) // adding it to the player's hand
-        ;
+  getActiveUser(redisDb, { room, id }) {
+    if (!room) {
+      return Promise.resolve(false);
+    }
+
+    return redisDb.get(this._addPrefixToKey(room, redisPrefix.ACTIVEUSER))
+      .then((res) => res === id)
+      .catch((err) => {
+        if (err.code === 404) {
+          return false;
+        }
+
+        throw err;
       })
     ;
   }
 
-  randomIntFromIntervalAndNotIn(min, max, notIn) { // min and max included
-    const randomVal = Math.floor(Math.random() * (max - min + 1) + min).toString();
-    if (_.includes(notIn, randomVal)) {
-      return this.randomIntFromIntervalAndNotIn(min, max, notIn);
-    }
+  getLastPlayedCardFromRoom(redisDb, roomId) {
+    return this._getLastPlayedCard(redisDb, roomId)
+      .catch(err => {
+        if (err.code === 404) {
+          return {};
+        }
 
-    return randomVal;
+        throw err;
+      })
+    ;
   }
 
-  removePrefixFromKey(key, prefix) {
-    return _.replace(key, prefix, '');
-  }
-
-  removePrefixFromKeys(keys, prefix) {
-    return _.map(keys, key => this.removePrefixFromKey(key, prefix));
-  }
 }

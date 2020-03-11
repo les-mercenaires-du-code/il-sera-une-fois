@@ -1,21 +1,27 @@
-import { Route, Switch } from 'react-router-dom';
-import { renderRoutes } from "react-router-config";
+import { NavLink } from 'react-router-dom';
 
-const RoomInfo = (props) => {
+function RoomInfo({ state }) {
 
-  if (!props.state) {
+  if (!state) {
     return (
       <p>loading</p>
     );
   }
 
-  console.log(props.state.users);
-  
+  const joinRoom = () => {
+    return
+  }
 
   return (
     <div>
-      <h2>{props.state.name}</h2>
-      <h2>{props.state.users.length} players connected</h2>
+      <h2>{state.name}</h2>
+      <h2>{state.nbUsersConnected} players connected</h2>
+      <NavLink
+        exact={true}
+        to={`/room/${state.id}`}
+      >
+      Join room
+      </NavLink>
     </div>
   )
 };

@@ -1,5 +1,6 @@
 import { Route, Switch } from 'react-router-dom';
-import { renderRoutes } from "react-router-config";
+import { renderRoutes } from 'react-router-config';
+
 import _ from 'lodash';
 
 import RoomInfo from './RoomInfo';
@@ -12,17 +13,15 @@ const Rooms = (props) => {
     );
   }
 
-  const listRooms = _.map(props.state.roomsList, room =>
-    <li key={room.id}>
-      <RoomInfo {...props} state={room}/>
-    </li>
-  );
-
   return (
     <div>
       <h2>Rooms available</h2>
       <ul>
-        {listRooms}
+        {_.map(props.state.roomsList, room =>
+          <li key={room.id}>
+            <RoomInfo {...props} state={room}/>
+          </li>
+        )}
       </ul>
     </div>
   )

@@ -346,6 +346,7 @@ export default class RedisDB {
     const splittedCards = _.reduce(cardsList, (acc, card) => {
       if (card.type === 'ending') {
         acc.endings.push(card);
+        return acc;
       }
 
       acc.others.push(card);
