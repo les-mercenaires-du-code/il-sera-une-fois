@@ -1,3 +1,5 @@
+// import adapter from 'webrtc-adapter';
+
 import React from 'react';
 import { BrowserRouter, Switch } from 'react-router-dom';
 import { hydrate } from 'react-dom';
@@ -8,25 +10,26 @@ import routes from '../shared/routes';
 import './scss/index.scss';
 
 
-loadableReady((props) => {
-
+const main = () => {
   hydrate(
     <BrowserRouter>
       {renderRoutes(routes)}
     </BrowserRouter>,
     document.getElementById('app')
   );
+}
+
+loadableReady((props) => {
+
+  require('webrtc-adapter');
+
+  main();
 
   if (module.hot) {
 
     console.log('module is hot');
     module.hot.accept('../shared/routes', () => {
-      hydrate(
-        <BrowserRouter>
-          {renderRoutes(routes)}
-        </BrowserRouter>,
-        document.getElementById('app')
-      );
+      main();
     });
   }
 

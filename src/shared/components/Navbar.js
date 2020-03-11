@@ -3,7 +3,7 @@ import { css } from '@emotion/core';
 import { NavLink } from 'react-router-dom';
 
 
-export default () => {
+export default (props) => {
 
   const menu = [
     {
@@ -13,6 +13,10 @@ export default () => {
     {
       name: 'GrandChild',
       param: '/child/id/grand-child',
+    },
+    {
+      name: 'Private',
+      param: '/dashboard',
     },
     {
       name: 'Rooms',

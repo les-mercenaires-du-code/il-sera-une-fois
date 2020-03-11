@@ -58,6 +58,9 @@ export default class GraphQLCustomQueries {
   }
 
   getRoomById(roomId, pgDb) {
+
+    console.log('3333333333', roomId);
+
     const query = `SELECT * FROM "rooms" WHERE id=${roomId}`;
     return pgDb.one(query)
       .catch((err) => {

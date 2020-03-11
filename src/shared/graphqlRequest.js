@@ -5,6 +5,7 @@ import * as queries from './queries';
 const client = new GraphQLClient('http://localhost:3000/graphql');
 
 export function getRoom(id) {
+  
   console.log('launching request getRoom with params :', id);
   const query = queries.getRoomById({id});
 

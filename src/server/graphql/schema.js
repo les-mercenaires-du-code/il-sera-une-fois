@@ -86,7 +86,7 @@ export default class GraphQLCustomSchema extends GraphQlWrapper {
           resolve: (_, args) => {
             return this.getDb('pg')
               .tap(() => this.logger.debug('Query roomById', args))
-              .then((pgDb) => this.queries.getRoomById(args.roomId, pgDb))
+              .then((pgDb) => this.queries.getRoomById(args.id, pgDb))
             ;
           },
         },

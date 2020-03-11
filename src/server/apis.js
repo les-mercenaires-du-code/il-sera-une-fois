@@ -70,7 +70,6 @@ async function getRoutes(options) {
     try {
       console.log('trying to require:', `${path.join(opts.baseDirectory, file)}`);
       module = require(`${path.join(opts.baseDirectory, file)}`).default;
-      console.log('----------', module);
     } catch (e) {
       console.log(file, 'does not refer to an existing file');
     }

@@ -34,7 +34,7 @@ async function createServer(graphQl) {
         ssr({
           hot: false, // disable hot reload in production
           statsFile: './build/stats.json', // handle chunks
-          cache: true, // store rendered html
+          // cache: true, // store rendered html
         })
       )
     ;
@@ -66,6 +66,7 @@ async function createServer(graphQl) {
         compiler, // catch bundle update
         hot: true, // sends updates to client via WS
         statsFile: './src/stats.json',
+        cache: false,
       })
     )
   ;

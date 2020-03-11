@@ -39,8 +39,7 @@ export default function ssr(options = defaultOptions) {
       require('../../shared/routes').default
     ;
 
-    if (_.startsWith(req.path, '/api')) {
-      console.log('api call returning');
+    if (_.startsWith(req.path, '/api') || _.startsWith(req.path, '/graphql')) {
       next();
       return;
     }

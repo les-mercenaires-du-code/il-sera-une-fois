@@ -21,9 +21,7 @@ const Rooms = (props) => {
   return (
     <div>
       <h2>Rooms available</h2>
-      <ul>
-        {listRooms}
-      </ul>
+      {listRooms}
     </div>
   )
 };
